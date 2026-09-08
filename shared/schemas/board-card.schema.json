@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "required": ["id", "domain", "status", "title"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "domain": {
+      "type": "string",
+      "enum": ["coding", "home-energy", "cyber", "research", "property", "personal"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["inbox", "doing", "blocked", "done"]
+    },
+    "cwd": { "type": "string" },
+    "done_when": { "type": "string" },
+    "artifacts": { "type": "array", "items": { "type": "string" } }
+  }
+}
