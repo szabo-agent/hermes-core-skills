@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quota-aware harness pick for littlebeast coding dispatch.
+"""Quota-aware harness pick for coding dispatch.
 
 Reads:
   claude-usage --cli
