@@ -15,9 +15,64 @@ The whole design rests on keeping two things apart. Collapsing them is what turn
 
 Hermes home is *who the agent is*. AgentOS is *where it works*. Artifacts never land in Hermes home; procedures never land in memory.
 
-## The tree
+## Install
 
-Clone or copy this repository to `~/AgentOS`. Start Hermes with that directory as cwd so `AGENTS.md` loads first.
+### 1. Put the tree in place
+
+Two topologies work, and they differ in whether your live tree is itself a git repo.
+
+**A — clone straight to `~/AgentOS`.** Simplest, and updates are a `git pull`. Your working files then live *inside* a clone, kept out by `.gitignore`.
+
+```bash
+git clone https://github.com/szabo-agent/hermes-core-skills.git ~/AgentOS
+```
+
+**B — keep the clone under `projects/` and copy the skeleton up.** The live tree contains no git repo at all, so no working file can ever be staged against this repository by accident.
+
+```bash
+mkdir -p ~/AgentOS/projects
+git clone https://github.com/szabo-agent/hermes-core-skills.git ~/AgentOS/projects/hermes-core-skills
+cd ~/AgentOS/projects/hermes-core-skills
+cp -rn AGENTS.md instruction.md board shared vault workspaces ~/AgentOS/
+```
+
+If `~/AgentOS` already exists, merge rather than overwrite — `instruction.md` covers the re-deploy case: create only what is missing, and never clobber a non-empty `AGENTS.md` or a vault note without asking.
+
+### 2. Install the skills
+
+Skills are read from `~/.hermes/skills/<category>/<name>/`. Symlink to follow updates:
+
+```bash
+# SRC is ~/AgentOS/skills under topology A,
+# ~/AgentOS/projects/hermes-core-skills/skills under topology B.
+SRC=~/AgentOS/projects/hermes-core-skills/skills
+
+mkdir -p ~/.hermes/skills/autonomous-ai-agents
+ln -s "$SRC/autonomous-ai-agents/coding-agent-routing" \
+      ~/.hermes/skills/autonomous-ai-agents/coding-agent-routing
+```
+
+Use `cp -r` instead to pin a version you intend to edit locally.
+
+### 3. Check it works
+
+```bash
+python3 ~/.hermes/skills/autonomous-ai-agents/coding-agent-routing/scripts/session_check.py --task basic
+```
+
+A `pick ...` line means the skill is installed and readable. Bands showing `unknown` just mean the usage CLIs are absent — the pick still resolves, to OpenCode.
+
+Then start Hermes with `~/AgentOS` as cwd so `AGENTS.md` loads first.
+
+### Prerequisites
+
+The tree itself needs only git. `coding-agent-routing` dispatches through whichever harness CLIs you actually have — `opencode`, `claude`, `codex` — and `session_check.py` reads `claude-usage` and `codex-cli-usage` when present, falling back to an `unknown` band when they are not. It is stdlib Python 3; there is nothing to install.
+
+### Keeping working files out
+
+Live work belongs in `workspaces/<domain>/active/`, which this repo ignores. Under topology A that ignore rule is the only thing standing between a stray `git add -A` and a push, so leave it intact and check `git status` before committing. Under topology B there is no repo in the live tree to push from. Either way, a project that grows its own git repo belongs in `projects/`, never under `active/`.
+
+## The tree
 
 | Path | Purpose |
 |---|---|
@@ -82,10 +137,6 @@ codex exec -m gpt-5.6-sol -c model_reasoning_effort="medium" --sandbox workspace
 ```
 
 It is stdlib-only, prints no secrets, and adds `--json` for programmatic use. Costs are reported as relative burn against the cheapest model, because the token cost of the *next* task is not knowable — the estimates are a budget, not a meter.
-
-## Requirements
-
-The tree itself needs nothing. `coding-agent-routing` expects the harnesses you actually intend to dispatch — the `opencode`, `claude`, or `codex` CLIs — and `session_check.py` reads `claude-usage` and `codex-cli-usage` when present, degrading to an `unknown` band when they are not.
 
 ## Not in this repository
 
