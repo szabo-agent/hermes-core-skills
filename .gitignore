@@ -26,3 +26,7 @@ workspaces/*/out/*
 !workspaces/*/out/.gitkeep
 workspaces/*/inbox/*
 !workspaces/*/inbox/.gitkeep
+vault/*/*
+!vault/*/.gitkeep
+board/done/*
+!board/done/.gitkeep
